@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanidhya Cinema Seat Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://images.unsplash.com/photo-1563946687286-5a7b1a153e63') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 450px;
+            text-align: center;
+        }
+        h1 {
+            margin: 0 0 20px;
+            color: #333;
+        }
+        .seat-row {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .seat {
+            width: 40px;
+            height: 40px;
+            background-color: #28a745; /* Available */
+            margin: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .seat.selected {
+            background-color: #ffc107; /* Selected */
+        }
+        .seat.occupied {
+            background-color: #dc3545; /* Occupied */
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .screen {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        .tick {
+            font-size: 50px;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="screen welcome-screen active">
+            <h1>Welcome to Sanidhya Cinema</h1>
+            <button id="proceedBtn">Proceed to Seat Selection</button>
+        </div>
+        <div class="screen selection-screen">
+            <h1>Select Your Seats</h1>
+            <div class="seat-row">
+                <div class="seat" data-seat="S1">S1</div>
+                <div class="seat" data-seat="S2">S2</div>
+                <div class="seat" data-seat="S3">S3</div>
+            </div>
+            <div class="seat-row">
+                <div class="seat" data-seat="S4">S4</div>
+                <div class="seat" data-seat="S5">S5</div>
+                <div class="seat" data-seat="S6">S6</div>
+            </div>
+            <div class="seat-row">
+                <div class="seat" data-seat="S7">S7</div>
+            </div>
+            <button id="bookBtn" disabled>Book Now</button>
+        </div>
+        <div class="screen confirmation-screen">
+            <h1>Booking Confirmed <span class="tick">✓</span></h1>
+            <p id="confirmationMessage"></p>
+            <button id="restartBtn">Book More Seats</button>
+        </div>
+    </div>
+    <script>
+        const proceedBtn = document.getElementById('proceedBtn');
+        const bookBtn = document.getElementById('bookBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const confirmationMessage = document.getElementById('confirmationMessage');
+
+        const welcomeScreen = document.querySelector('.welcome-screen');
+        const selectionScreen = document.querySelector('.selection-screen');
+        const confirmationScreen = document.querySelector('.confirmation-screen');
+
+        const seats = document.querySelectorAll('.seat');
+
+        proceedBtn.addEventListener('click', () => {
+            welcomeScreen.classList.remove('active');
+            selectionScreen.classList.add('active');
+        });
+
+        seats.forEach(seat => {
+            seat.addEventListener('click', () => {
+                if (!seat.classList.contains('occupied')) {
+                    seat.classList.toggle('selected');
+                    updateBookingInfo();
+                }
+            });
+        });
+
+        function updateBookingInfo() {
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+            const seatCount = selectedSeats.length;
+
+            if (seatCount > 0) {
+                bookBtn.disabled = false;
+                bookBtn.textContent = `Book ${seatCount} Seat(s)`;
+            } else {
+                bookBtn.disabled = true;
+                bookBtn.textContent = 'Book Now';
+            }
+        }
+
+        bookBtn.addEventListener('click', () => {
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+            if (selectedSeats.length > 0) {
+                selectedSeats.forEach(seat => {
+                    seat.classList.add('occupied');
+                    seat.classList.remove('selected');
+                });
+
+                confirmationMessage.textContent = `Your seat(s) ${Array.from(selectedSeats).map(seat => seat.getAttribute('data-seat')).join(', ')} have been booked!`;
+                selectionScreen.classList.remove('active');
+                confirmationScreen.classList.add('active');
+            } else {
+                confirmationMessage.textContent = "Sorry, all seats are booked!";
+            }
+        });
+
+        restartBtn.addEventListener('click', () => {
+            // Reset the selection and go back to the welcome screen
+            selectionScreen.querySelectorAll('.seat.occupied').forEach(seat => {
+                seat.classList.remove('occupied');
+            });
+            confirmationScreen.classList.remove('active');
+            welcomeScreen.classList.add('active');
+            bookBtn.disabled = true; // Disable booking button
+        });
+    </script>
+</body>
+</html>
